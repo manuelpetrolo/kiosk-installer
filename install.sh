@@ -346,6 +346,8 @@ KIOSK_DBUS="unix:path=/run/user/${KIOSK_UID}/bus"
 
 # Via dconf direttamente (funziona anche senza sessione attiva)
 mkdir -p /home/kiosk/.config/dconf
+chown -R kiosk:kiosk /home/kiosk/.config
+chmod 700 /home/kiosk/.config/dconf
 cat > /tmp/kiosk-dconf-settings << 'DCONF'
 [org/gnome/desktop/session]
 idle-delay=uint32 0
