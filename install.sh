@@ -264,6 +264,38 @@ cp "$REPO_DIR/files/totem-kiosk-start.sh" /usr/local/bin/
 cp "$REPO_DIR/files/totem-display.sh"     /usr/local/bin/
 cp "$REPO_DIR/files/totem-agent.sh"       /usr/local/bin/ 2>/dev/null || true
 
+
+# ── totem-agent: systemd service + timer ─────────────────────────────────────
+cat > /etc/systemd/system/totem-agent.service << 'EOF'
+[Unit]
+Description=Totem Kiosk Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/totem-agent.sh
+StandardOutput=journal
+StandardError=journal
+EOF
+
+cat > /etc/systemd/system/totem-agent.timer << 'EOF'
+[Unit]
+Description=Totem Kiosk Agent Timer
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=30
+AccuracySec=5
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now totem-agent.timer
+echo "[OK] totem-agent.timer attivo"
+
 # Aggiorna browser path e risoluzione
 sed -i "s|/snap/bin/chromium|${BROWSER_BIN}|g"         /usr/local/bin/totem-kiosk-start.sh
 sed -i "s|/usr/bin/chromium-browser|${BROWSER_BIN}|g"  /usr/local/bin/totem-kiosk-start.sh
