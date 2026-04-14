@@ -154,7 +154,19 @@ else
   git clone "$REPO_SSH" "$REPO_DIR"
 fi
 
-files/content.js files/sw.js files/manifest.json files/totem-kiosk-start.sh; do
+for f in \
+  files/content.js \
+  files/sw.js \
+  files/manifest.json \
+  files/totem-kiosk-start.sh \
+  files/totem-agent.sh \
+  files/totem-agent-sync.sh \
+  files/totem-display.sh \
+  update.sh \
+  panel/totem-panel.py \
+  panel/app.py \
+  panel/totem-panel.service
+do
   [ -f "$REPO_DIR/$f" ] || err "File mancante nel repository: $f"
 done
 ok "File scaricati in $REPO_DIR"
