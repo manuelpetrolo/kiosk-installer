@@ -417,8 +417,10 @@ hdr "Verifica servizi"
 systemctl daemon-reload
 systemctl enable totem-kiosk.service 2>/dev/null || true
 systemctl restart totem-kiosk.service 2>/dev/null || true
-systemctl restart totem-panel.service 2>/dev/null || true
+
+systemctl is-enabled totem-panel.service >/dev/null 2>&1 && systemctl restart totem-panel.service || true
 systemctl restart totem-agent.timer 2>/dev/null || true
+systemctl start totem-agent.service 2>/dev/null || true
 
 ok "Servizi aggiornati"
 
