@@ -316,9 +316,11 @@ apt remove -y update-notifier update-notifier-common 2>/dev/null || true
 ok "Aggiornamenti automatici disabilitati"
 
 # Pannello admin Flask
-if [ -f "$REPO_DIR/panel/totem-panel.py" ]; then
-  cp "$REPO_DIR/panel/totem-panel.py" /usr/local/bin/totem-panel.py
-  chmod +x /usr/local/bin/totem-panel.py
+if [ -f "$REPO_DIR/panel/totem-panel.py" ] && [ -f "$REPO_DIR/panel/app.py" ]; then
+  install -d -m 755 /opt/kiosk-setup/panel
+  cp -r "$REPO_DIR/panel/"* /opt/kiosk-setup/panel/
+
+  chmod +x /opt/kiosk-setup/panel/totem-panel.py
 
   cat > /etc/systemd/system/totem-panel.service << 'EOF'
 [Unit]
@@ -327,17 +329,19 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /usr/local/bin/totem-panel.py
+WorkingDirectory=/opt/kiosk-setup/panel
+EnvironmentFile=/etc/totem/kiosk.env
+ExecStart=/usr/bin/python3 /opt/kiosk-setup/panel/totem-panel.py
 Restart=always
 RestartSec=5
-Environment=TOTEM_PANEL_PASSWORD=totem2026
 
 [Install]
 WantedBy=multi-user.target
 EOF
+
   systemctl daemon-reload
   systemctl enable totem-panel
-  systemctl start totem-panel
+  systemctl restart totem-panel
   ok "Pannello admin Flask avviato su porta 8080"
 fi
 
