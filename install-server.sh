@@ -333,6 +333,7 @@ if [ -f "$REPO_DIR/panel/totem-panel.py" ] && [ -f "$REPO_DIR/panel/app.py" ]; t
   cp -r "$REPO_DIR/panel/"* /opt/kiosk-setup/panel/
 
   chmod +x /opt/kiosk-setup/panel/totem-panel.py
+  rm -f /usr/local/bin/totem-panel.py
 
   cat > /etc/systemd/system/totem-panel.service << 'EOF'
 [Unit]
