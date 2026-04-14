@@ -57,19 +57,24 @@ fi
 # STEP 1 — Pacchetti base
 # =============================================================================
 hdr "STEP 1/9 — Installazione pacchetti base"
+
+export DEBIAN_FRONTEND=noninteractive
+
 apt update -qq
 apt install -y \
-  git curl \
+  git curl wget jq \
   openssh-client openssh-server \
-  cage \
-  xwayland \
+  cage xwayland \
   snapd \
-  python3 python3-flask \
+  python3 python3-flask python3-venv python3-pip \
+  ffmpeg \
   unclutter-xfixes \
-  fonts-liberation \
-  -qq 2>/dev/null || true
+  fonts-liberation fonts-dejavu-core \
+  ca-certificates \
+  -qq
 
 command -v cage >/dev/null 2>&1 || err "Cage non installato correttamente"
+command -v ffprobe >/dev/null 2>&1 || err "ffprobe non disponibile: ffmpeg non installato correttamente"
 ok "Pacchetti base installati"
 
 if ! snap list chromium &>/dev/null; then
@@ -80,9 +85,10 @@ else
   warn "Chromium snap già installato"
 fi
 
-BROWSER_BIN=$(which chromium-browser 2>/dev/null || which chromium 2>/dev/null || echo "/snap/bin/chromium")
+BROWSER_BIN=$(command -v chromium-browser 2>/dev/null || command -v chromium 2>/dev/null || echo "/snap/bin/chromium")
 [ -x "$BROWSER_BIN" ] || BROWSER_BIN="/snap/bin/chromium"
 ok "Chromium: $BROWSER_BIN"
+
 pause
 
 # =============================================================================
@@ -148,7 +154,7 @@ else
   git clone "$REPO_SSH" "$REPO_DIR"
 fi
 
-for f in files/content.js files/sw.js files/manifest.json files/totem-kiosk-start.sh; do
+files/content.js files/sw.js files/manifest.json files/totem-kiosk-start.sh; do
   [ -f "$REPO_DIR/$f" ] || err "File mancante nel repository: $f"
 done
 ok "File scaricati in $REPO_DIR"
