@@ -345,10 +345,18 @@ EOF
   ok "Pannello admin Flask avviato su porta 8080"
 fi
 
-# Totem Agent
+# Totem Agent + updater
 if [ -f "$REPO_DIR/files/totem-agent.sh" ]; then
   cp "$REPO_DIR/files/totem-agent.sh" /usr/local/bin/totem-agent.sh
-  chmod +x /usr/local/bin/totem-agent.sh
+  cp "$REPO_DIR/files/totem-agent-sync.sh" /usr/local/bin/totem-agent-sync.sh
+  cp "$REPO_DIR/files/totem-display.sh" /usr/local/bin/totem-display.sh
+  cp "$REPO_DIR/update.sh" /usr/local/bin/totem-update.sh
+
+  chmod +x \
+    /usr/local/bin/totem-agent.sh \
+    /usr/local/bin/totem-agent-sync.sh \
+    /usr/local/bin/totem-display.sh \
+    /usr/local/bin/totem-update.sh
 
   cat > /etc/systemd/system/totem-agent.service << 'EOF'
 [Unit]
@@ -377,7 +385,8 @@ EOF
 
   systemctl daemon-reload
   systemctl enable totem-agent.timer
-  systemctl start totem-agent.timer
+  systemctl restart totem-agent.timer
+  systemctl start totem-agent.service || true
   ok "Totem agent installato e avviato (ogni 30s)"
 fi
 
@@ -390,6 +399,18 @@ fi
 
 pause
 
+hdr "Verifica servizi"
+
+systemctl daemon-reload
+systemctl enable totem-kiosk.service 2>/dev/null || true
+systemctl restart totem-kiosk.service 2>/dev/null || true
+systemctl restart totem-panel.service 2>/dev/null || true
+systemctl restart totem-agent.timer 2>/dev/null || true
+
+ok "Servizi aggiornati"
+
+
+pause
 # =============================================================================
 # Fine
 # =============================================================================
