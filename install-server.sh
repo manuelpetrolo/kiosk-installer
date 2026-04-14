@@ -220,6 +220,9 @@ cat > /etc/totem/kiosk.env << EOF
 KIOSK_TOKEN=${KIOSK_TOKEN}
 KIOSK_VERSION=kiosk-0.4.1
 KIOSK_SERVER_URL=${KIOSK_SERVER_URL}
+KIOSK_HOME_URL=${HOME_URL}
+KIOSK_HOME_HOST=${HOME_HOST}
+TOTEM_PANEL_PASSWORD=totem2026
 EOF
 chmod 644 /etc/totem/kiosk.env
 ok "kiosk.env creato in /etc/totem/"
