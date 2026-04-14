@@ -254,16 +254,17 @@ pause
 # =============================================================================
 hdr "STEP 8/9 — Configurazione servizio Cage"
 
-# Script avvio kiosk — copia dal repo (aggiorna HOME_HOST dinamicamente ad ogni avvio)
+# Script runtime kiosk
 cp "$REPO_DIR/files/totem-kiosk-start.sh" /usr/local/bin/totem-kiosk-start.sh
-chmod +x /usr/local/bin/totem-kiosk-start.sh
+cp "$REPO_DIR/files/totem-display.sh" /usr/local/bin/totem-display.sh
+chmod +x /usr/local/bin/totem-kiosk-start.sh /usr/local/bin/totem-display.sh
 
 # Servizio systemd per cage
 cat > /etc/systemd/system/totem-kiosk.service << 'EOF'
 [Unit]
 Description=Totem Kiosk (Cage + Chromium)
-After=systemd-user-sessions.service network-online.target
-Wants=network-online.target
+After=systemd-user-sessions.service network-online.target snapd.seeded.service
+Wants=network-online.target snapd.seeded.service
 
 [Service]
 User=kiosk
@@ -277,9 +278,10 @@ StandardInput=tty
 StandardOutput=journal
 StandardError=journal
 EnvironmentFile=/etc/totem/kiosk.env
+Environment=XDG_RUNTIME_DIR=/run/user/1001
 ExecStartPre=/bin/sleep 3
 ExecStartPre=/bin/bash -c 'mkdir -p /run/user/$(id -u kiosk) && chown kiosk:kiosk /run/user/$(id -u kiosk)'
-ExecStart=/bin/bash -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u kiosk); exec /usr/bin/cage -s -- /usr/local/bin/totem-kiosk-start.sh'
+ExecStart=/bin/bash -lc 'export XDG_RUNTIME_DIR=/run/user/$(id -u kiosk); exec /usr/bin/cage -s -- /usr/local/bin/totem-kiosk-start.sh'
 Restart=always
 RestartSec=5
 
